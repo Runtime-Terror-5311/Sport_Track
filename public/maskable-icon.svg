@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="pwaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Full bleed background (required for maskable icons to avoid blank margins when cropped) -->
+  <rect width="512" height="512" fill="url(#pwaGrad)" />
+
+  <!-- Safe Area Guide: Keep central graphic within central 60% (inside r=150 circle at core) -->
+  <g transform="translate(0, 0)">
+    <!-- Main Sports Badge Frame inside the safe circle zone -->
+    <g filter="url(#dropShadow)">
+      <circle cx="256" cy="256" r="95" fill="#1e293b" stroke="url(#accentGrad)" stroke-width="5" />
+
+      <!-- Whistle Body -->
+      <path d="M198 225 
+               H284 
+               A43 43 0 0 1 327 268 
+               A43 43 0 0 1 284 311 
+               H198 
+               A26 26 0 0 1 172 285 
+               V251 
+               A26 26 0 0 1 198 225 Z" 
+            fill="url(#accentGrad)" />
+
+      <!-- Whistle Handle/Tip -->
+      <path d="M172 242 H146 V277 H172 Z" fill="url(#accentGrad)" opacity="0.9" />
+
+      <!-- Whistle Hanging Ring -->
+      <circle cx="133" cy="260" r="13" fill="none" stroke="url(#accentGrad)" stroke-width="3" />
+
+      <!-- Whistle Sound Hole / Vent -->
+      <rect x="233" y="225" width="30" height="13" rx="3" fill="#1e293b" />
+
+      <!-- Dynamic Speed/Sound waves -->
+      <path d="M353 234 A52 52 0 0 1 353 286" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" opacity="0.8" />
+      <path d="M370 221 A78 78 0 0 1 370 299" fill="none" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" opacity="0.6" />
+    </g>
+
+    <!-- Star representing high status -->
+    <path d="M256 125 L259 134 L268 134 L260 140 L263 149 L256 143 L249 149 L252 140 L244 134 L253 134 Z" fill="#ffffff" opacity="0.9" />
+  </g>
+
+  <!-- Text inside safe zone limits -->
+  <text x="256" y="415" font-family="'Inter', system-ui, sans-serif" font-size="22" font-weight="bold" fill="#f8fafc" text-anchor="middle" letter-spacing="3">SPORTTRACK</text>
+</svg>

@@ -1,0 +1,6 @@
+{
+  "name": "Sports Issue Tracker",
+  "description": "A mobile-first sports equipment issue and return tracking application for hostel students.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

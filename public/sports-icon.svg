@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Beautiful modern gradient -->
+    <linearGradient id="pwaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" /> <!-- slate-900 -->
+      <stop offset="100%" stop-color="#1e293b" /> <!-- slate-800 -->
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" /> <!-- emerald-500 -->
+      <stop offset="100%" stop-color="#059669" /> <!-- emerald-600 -->
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded canvas -->
+  <rect width="512" height="512" rx="128" fill="url(#pwaGrad)" />
+
+  <!-- Subtle grid/stadium glow lines in background -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="16 16" opacity="0.4" />
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#475569" stroke-width="1" opacity="0.3" />
+
+  <!-- Main Sports Badge Frame (Shield/Circle fusion) -->
+  <g filter="url(#dropShadow)">
+    <circle cx="256" cy="256" r="110" fill="#1e293b" stroke="url(#accentGrad)" stroke-width="6" />
+
+    <!-- whistle or sports medal design -->
+    <!-- Whistle Body -->
+    <path d="M190 220 
+             H290 
+             A50 50 0 0 1 340 270 
+             A50 50 0 0 1 290 320 
+             H190 
+             A30 30 0 0 1 160 290 
+             V250 
+             A30 30 0 0 1 190 220 Z" 
+          fill="url(#accentGrad)" />
+
+    <!-- Whistle Handle/Tip -->
+    <path d="M160 240 H130 V280 H160 Z" fill="url(#accentGrad)" opacity="0.9" />
+
+    <!-- Whistle Hanging Ring -->
+    <circle cx="115" cy="260" r="15" fill="none" stroke="url(#accentGrad)" stroke-width="4" />
+
+    <!-- Whistle Sound Hole / Vent -->
+    <rect x="230" y="220" width="35" height="15" rx="4" fill="#1e293b" />
+
+    <!-- Dynamic Speed/Sound waves -->
+    <path d="M370 230 A60 60 0 0 1 370 290" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.8" />
+    <path d="M390 215 A90 90 0 0 1 390 305" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M410 200 A120 120 0 0 1 410 320" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.3" />
+  </g>
+
+  <!-- Stars representing quality/sports victory -->
+  <path d="M256 100 L260 112 L272 112 L262 120 L266 132 L256 124 L246 132 L250 120 L240 112 L252 112 Z" fill="#ffffff" opacity="0.9" />
+  <path d="M140 150 L143 158 L152 158 L144 164 L147 173 L140 167 L133 173 L136 164 L128 158 L137 158 Z" fill="#ffffff" opacity="0.5" />
+  <path d="M372 150 L375 158 L384 158 L376 164 L379 173 L372 167 L365 173 L368 164 L360 158 L369 158 Z" fill="#ffffff" opacity="0.5" />
+
+  <!-- Elegant subtle title label base -->
+  <text x="256" y="440" font-family="'Inter', system-ui, sans-serif" font-size="28" font-weight="bold" fill="#f8fafc" text-anchor="middle" letter-spacing="4">SPORTTRACK</text>
+  <text x="256" y="468" font-family="'Inter', system-ui, sans-serif" font-size="14" font-weight="900" fill="#10b981" text-anchor="middle" letter-spacing="6">PWA SECURE</text>
+</svg>
