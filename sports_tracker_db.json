@@ -1,0 +1,101 @@
+{
+  "users": [
+    {
+      "id": "usr_admin_1",
+      "name": "Sports Secretary",
+      "email": "admin@sports.com",
+      "passwordHash": "$2b$10$PgMq3Jk9ClUMx0eJz8zl9.p5ewDJU5M.Uh6s4gf8WOK/LHHxbE7ky",
+      "hostel": "Admin Block",
+      "roomNumber": "ADMIN-101",
+      "role": "admin",
+      "regNo": "SECRETARY01",
+      "phone": "9876543212"
+    },
+    {
+      "id": "usr_stud_1",
+      "name": "Shubhangi",
+      "email": "shubhangi0100@gmail.com",
+      "passwordHash": "$2b$10$PgMq3Jk9ClUMx0eJz8zl9.k3P60l0xbiJtIYNsqXR86xniDSxnzby",
+      "hostel": "Ganga Hostel",
+      "roomNumber": "304",
+      "role": "student",
+      "regNo": "2026SH01",
+      "phone": "9876543210"
+    },
+    {
+      "id": "usr_stud_2",
+      "name": "Rahul Sharma",
+      "email": "student@sports.com",
+      "passwordHash": "$2b$10$PgMq3Jk9ClUMx0eJz8zl9.k3P60l0xbiJtIYNsqXR86xniDSxnzby",
+      "hostel": "Yamuna Hostel",
+      "roomNumber": "102",
+      "role": "student",
+      "regNo": "2026RS02",
+      "phone": "9876543211"
+    }
+  ],
+  "equipment": [
+    {
+      "id": "eq_1",
+      "name": "Football",
+      "totalQuantity": 10,
+      "availableQuantity": 8
+    },
+    {
+      "id": "eq_2",
+      "name": "Basketball",
+      "totalQuantity": 8,
+      "availableQuantity": 7
+    },
+    {
+      "id": "eq_3",
+      "name": "Volleyball",
+      "totalQuantity": 6,
+      "availableQuantity": 6
+    },
+    {
+      "id": "eq_4",
+      "name": "Cricket Bat",
+      "totalQuantity": 5,
+      "availableQuantity": 4
+    },
+    {
+      "id": "eq_5",
+      "name": "Badminton Racket",
+      "totalQuantity": 12,
+      "availableQuantity": 11
+    }
+  ],
+  "issues": [
+    {
+      "id": "is_1",
+      "studentId": "usr_stud_2",
+      "equipmentId": "eq_1",
+      "quantity": 1,
+      "issueDate": "2026-06-05T04:26:05.112Z",
+      "dueDate": "2026-06-08T04:26:05.112Z",
+      "returnDate": null,
+      "status": "Overdue"
+    },
+    {
+      "id": "is_2",
+      "studentId": "usr_stud_1",
+      "equipmentId": "eq_5",
+      "quantity": 1,
+      "issueDate": "2026-06-15T04:26:05.112Z",
+      "dueDate": "2026-06-18T04:26:05.111Z",
+      "returnDate": null,
+      "status": "Active"
+    },
+    {
+      "id": "is_3",
+      "studentId": "usr_stud_2",
+      "equipmentId": "eq_4",
+      "quantity": 1,
+      "issueDate": "2026-06-13T04:26:05.111Z",
+      "dueDate": "2026-06-16T04:26:05.111Z",
+      "returnDate": null,
+      "status": "Return Requested"
+    }
+  ]
+}

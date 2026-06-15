@@ -4,6 +4,7 @@ import authRoutes from "./routes/authRoutes";
 import studentRoutes from "./routes/studentRoutes";
 import equipmentRoutes from "./routes/equipmentRoutes";
 import issueRoutes from "./routes/issueRoutes";
+import aiRoutes from "./routes/aiRoutes";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/equipment", equipmentRoutes);
 app.use("/api/issues", issueRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Simple healthcheck
 app.get("/api/health", (req: Request, res: Response) => {

@@ -238,4 +238,78 @@ export class StudentController {
       res.status(500).json({ error: error.message || "Failed to process spreadsheet file." });
     }
   }
+
+  static async addStudent(req: Request, res: Response): Promise<void> {
+    const { name, email, hostel, roomNumber, phone, regNo } = req.body;
+
+    if (!name || !email || !hostel || !roomNumber) {
+      res.status(400).json({ error: "Missing required fields: name, email, hostel, and roomNumber are required." });
+      return;
+    }
+
+    const emailTrimmed = email.toLowerCase().trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailTrimmed)) {
+      res.status(400).json({ error: `Invalid email format: "${email}"` });
+      return;
+    }
+
+    try {
+      // Uniqueness checks
+      const allUsers = await UserModel.find();
+      const existingEmail = allUsers.some(u => u.email.toLowerCase().trim() === emailTrimmed);
+      if (existingEmail) {
+        res.status(400).json({ error: `Email already exists in system: ${email}` });
+        return;
+      }
+
+      const existingRoom = allUsers.some(u => u.roomNumber.toLowerCase().trim() === roomNumber.toLowerCase().trim());
+      if (existingRoom) {
+        res.status(400).json({ error: `Room ${roomNumber} is already assigned to another student.` });
+        return;
+      }
+
+      let finalRegNo = regNo ? regNo.trim() : "";
+      if (finalRegNo) {
+        const existingRegNo = allUsers.some(u => u.regNo?.toLowerCase().trim() === finalRegNo.toLowerCase());
+        if (existingRegNo) {
+          res.status(400).json({ error: `Registration number already exists: ${finalRegNo}` });
+          return;
+        }
+      } else {
+        const emailPrefix = emailTrimmed.split("@")[0].replace(/[^a-zA-Z0-9]/g, "");
+        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+        finalRegNo = `REG-${emailPrefix.toUpperCase()}-${randomSuffix}`;
+      }
+
+      const salt = bcrypt.genSaltSync(10);
+      const defaultPasswordHash = bcrypt.hashSync("student123", salt);
+
+      const newStudent = await UserModel.create({
+        name: name.trim(),
+        email: emailTrimmed,
+        passwordHash: defaultPasswordHash,
+        hostel: hostel.trim(),
+        roomNumber: roomNumber.trim(),
+        role: "student",
+        phone: phone ? phone.trim() : null,
+        regNo: finalRegNo,
+      });
+
+      res.status(201).json({
+        message: "Student profile created successfully.",
+        student: {
+          id: newStudent.id,
+          name: newStudent.name,
+          email: newStudent.email,
+          hostel: newStudent.hostel,
+          roomNumber: newStudent.roomNumber,
+          regNo: newStudent.regNo,
+          phone: newStudent.phone,
+        }
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to create student profile." });
+    }
+  }
 }

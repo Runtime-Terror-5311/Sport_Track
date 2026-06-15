@@ -88,6 +88,18 @@ export const AdminDashboard: React.FC = () => {
   } | null>(null);
   const [errorReportCsv, setErrorReportCsv] = useState<string | null>(null);
 
+  // Manual Single Student creation form state
+  const [manualStudentTab, setManualStudentTab] = useState<"import" | "manual">("import");
+  const [mName, setMName] = useState<string>("");
+  const [mEmail, setMEmail] = useState<string>("");
+  const [mHostel, setMHostel] = useState<string>("M");
+  const [mRoomNumber, setMRoomNumber] = useState<string>("");
+  const [mPhone, setMPhone] = useState<string>("");
+  const [mRegNo, setMRegNo] = useState<string>("");
+  const [manualStudentLoading, setManualStudentLoading] = useState<boolean>(false);
+  const [manualStudentError, setManualStudentError] = useState<string | null>(null);
+  const [manualStudentSuccess, setManualStudentSuccess] = useState<string | null>(null);
+
   // Room Search for student select states
   const [studentSelectionMode, setStudentSelectionMode] = useState<"list" | "room">("list");
   const [roomSearchQuery, setRoomSearchQuery] = useState<string>("");
@@ -257,6 +269,46 @@ export const AdminDashboard: React.FC = () => {
     } catch (err: any) {
       setErrorCode(err.message || "Could not delete student profile.");
       setPendingDeleteStudentId(null);
+    }
+  };
+
+  const handleManualStudentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setManualStudentError(null);
+    setManualStudentSuccess(null);
+
+    if (!mName.trim() || !mEmail.trim() || !mHostel.trim() || !mRoomNumber.trim()) {
+      setManualStudentError("Please fill out all required fields: Name, Email, Hostel, and Room Number.");
+      return;
+    }
+
+    try {
+      setManualStudentLoading(true);
+      const res = await api.addStudent({
+        name: mName.trim(),
+        email: mEmail.trim(),
+        hostel: mHostel.trim(),
+        roomNumber: mRoomNumber.trim(),
+        phone: mPhone.trim() || undefined,
+        regNo: mRegNo.trim() || undefined,
+      });
+
+      setManualStudentSuccess(`Successfully registered student ${res.student?.name || mName}! Room ${res.student?.roomNumber || mRoomNumber}.`);
+      
+      // Reset manual fields
+      setMName("");
+      setMEmail("");
+      setMHostel("M");
+      setMRoomNumber("");
+      setMPhone("");
+      setMRegNo("");
+
+      // Trigger hot reload of directory list
+      await loadInitialData();
+    } catch (err: any) {
+      setManualStudentError(err.message || "Failed to register student profile.");
+    } finally {
+      setManualStudentLoading(false);
     }
   };
 
@@ -452,103 +504,275 @@ export const AdminDashboard: React.FC = () => {
           {/* TAB 1: USERS (Student Directory with search) */}
           {activeTab === "users" && (
             <div className="space-y-4">
-              {/* NEW: Student Spreadsheet Import panel */}
+              {/* Student Profiles Panel (Import or Manual Single) */}
               <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-600 animate-bounce" />
-                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">
-                    Import Student Profiles
-                  </h3>
-                </div>
-
-                <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 text-[10px] text-slate-600 leading-relaxed space-y-1">
-                  <p className="font-bold text-emerald-800">Spreadsheet Specifications:</p>
-                  <p>Required columns (exact names): <span className="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-100">name</span>, <span className="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-100">email</span>, <span className="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-100">hostel</span>, <span className="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-100">roomNumber</span>.</p>
-                  <p>Optional columns: <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-100">phone</span>, <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-100">regNo</span>.</p>
-                  <p>Hostel M operates on <span className="font-semibold text-emerald-800">single-occupancy</span> (any duplicate room number blocks insertion).</p>
-                </div>
-
-                {importError && (
-                  <div className="p-3 bg-red-50 border border-red-250 rounded-2xl text-[10px] font-semibold text-red-700 flex items-start gap-2">
-                    <XCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                    <span>{importError}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                    <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">
+                      Add Student Profiles
+                    </h3>
                   </div>
+
+                  {/* Tablet and Desktop Pill Toggle Selector */}
+                  <div className="bg-slate-100 p-1 rounded-xl flex gap-1 self-start sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setManualStudentTab("import")}
+                      className={`px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wide transition-all cursor-pointer ${
+                        manualStudentTab === "import"
+                          ? "bg-white text-slate-800 shadow-xs"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      Bulk Spreadsheet
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setManualStudentTab("manual")}
+                      className={`px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wide transition-all cursor-pointer ${
+                        manualStudentTab === "manual"
+                          ? "bg-white text-slate-800 shadow-xs"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      Single Manual
+                    </button>
+                  </div>
+                </div>
+
+                {manualStudentTab === "import" && (
+                  <>
+                    <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3 text-[10px] text-slate-600 leading-relaxed space-y-1">
+                      <p className="font-bold text-emerald-800">Spreadsheet Specifications:</p>
+                      <p>Required columns (exact names): <span className="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-100">name</span>, <span className="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-100">email</span>, <span className="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-100">hostel</span>, <span className="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-100">roomNumber</span>.</p>
+                      <p>Optional columns: <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-100">phone</span>, <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-100">regNo</span>.</p>
+                      <p>Hostel M operates on <span className="font-semibold text-emerald-800">single-occupancy</span> (any duplicate room number blocks insertion).</p>
+                    </div>
+
+                    {importError && (
+                      <div className="p-3 bg-red-50 border border-red-250 rounded-2xl text-[10px] font-semibold text-red-700 flex items-start gap-2">
+                        <XCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                        <span>{importError}</span>
+                      </div>
+                    )}
+
+                    {/* Drag and Drop Zone */}
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition flex flex-col items-center justify-center min-h-[110px] ${
+                        isDragging
+                          ? "border-blue-600 bg-blue-50/50"
+                          : "border-slate-200 hover:border-slate-350 hover:bg-slate-50/40"
+                      }`}
+                      onClick={() => document.getElementById("excel_import_file")?.click()}
+                    >
+                      <input
+                        id="excel_import_file"
+                        type="file"
+                        accept=".xlsx, .csv"
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+
+                      {importLoading ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <span className="inline-block w-6 h-6 border-2 border-blue-100 border-t-blue-600 rounded-full animate-spin"></span>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest animate-pulse">Processing Spreadsheet...</p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1.5">
+                          <UploadCloud className="w-7 h-7 text-slate-400 mb-1" />
+                          <p className="text-xs font-bold text-slate-700">
+                            {importFile ? importFile.name : "Upload Excel or CSV Sheet"}
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-medium">
+                            Drag & drop file here, or <span className="text-blue-600 underline font-bold">browse local files</span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Import Summary Results */}
+                    {importSummary && (
+                      <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs">
+                        <div className="flex justify-between border-b border-slate-200 pb-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          <span>Import Results</span>
+                          <span>{importSummary.totalRows} Processed</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-extrabold font-sans">
+                          <div className="bg-emerald-50 text-emerald-800 p-2.5 rounded-xl border border-emerald-100 flex flex-col justify-center items-center">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600 mb-1" />
+                            <span className="text-sm font-black">{importSummary.imported}</span>
+                            <span className="text-[8px] font-bold text-emerald-650 uppercase tracking-widest mt-1">Imported</span>
+                          </div>
+                          <div className="bg-amber-50 text-amber-800 p-2.5 rounded-xl border border-amber-100 flex flex-col justify-center items-center">
+                            <AlertTriangle className="w-4 h-4 text-amber-600 mb-1" />
+                            <span className="text-sm font-black">{importSummary.duplicates}</span>
+                            <span className="text-[8px] font-bold text-amber-600 uppercase tracking-widest mt-1">Duplicates</span>
+                          </div>
+                          <div className="bg-red-50 text-red-800 p-2.5 rounded-xl border border-red-100 flex flex-col justify-center items-center">
+                            <XCircle className="w-4 h-4 text-red-650 mb-1" />
+                            <span className="text-sm font-black">{importSummary.errors}</span>
+                            <span className="text-[8px] font-bold text-red-600 uppercase tracking-widest mt-1">Errors</span>
+                          </div>
+                        </div>
+
+                        {/* Downloadable Error Report button */}
+                        {errorReportCsv && (importSummary.errors > 0 || importSummary.duplicates > 0) && (
+                          <button
+                            onClick={downloadCsvReport}
+                            className="w-full py-2.5 bg-slate-900 hover:bg-slate-850 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>Download Import Report (CSV)</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
 
-                {/* Drag and Drop Zone */}
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition flex flex-col items-center justify-center min-h-[110px] ${
-                    isDragging
-                      ? "border-blue-600 bg-blue-50/50"
-                      : "border-slate-200 hover:border-slate-350 hover:bg-slate-50/40"
-                  }`}
-                  onClick={() => document.getElementById("excel_import_file")?.click()}
-                >
-                  <input
-                    id="excel_import_file"
-                    type="file"
-                    accept=".xlsx, .csv"
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-
-                  {importLoading ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <span className="inline-block w-6 h-6 border-2 border-blue-100 border-t-blue-600 rounded-full animate-spin"></span>
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest animate-pulse">Processing Spreadsheet...</p>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-1.5">
-                      <UploadCloud className="w-7 h-7 text-slate-400 mb-1" />
-                      <p className="text-xs font-bold text-slate-700">
-                        {importFile ? importFile.name : "Upload Excel or CSV Sheet"}
-                      </p>
-                      <p className="text-[10px] text-slate-400 font-medium">
-                        Drag & drop file here, or <span className="text-blue-600 underline font-bold">browse local files</span>
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Import Summary Results */}
-                {importSummary && (
-                  <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs">
-                    <div className="flex justify-between border-b border-slate-200 pb-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      <span>Import Results</span>
-                      <span>{importSummary.totalRows} Processed</span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-extrabold font-sans">
-                      <div className="bg-emerald-50 text-emerald-800 p-2.5 rounded-xl border border-emerald-100 flex flex-col justify-center items-center">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 mb-1" />
-                        <span className="text-sm font-black">{importSummary.imported}</span>
-                        <span className="text-[8px] font-bold text-emerald-650 uppercase tracking-widest mt-1">Imported</span>
+                {manualStudentTab === "manual" && (
+                  <form onSubmit={handleManualStudentSubmit} className="space-y-4">
+                    {/* Feedback messages */}
+                    {manualStudentError && (
+                      <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                        <span>{manualStudentError}</span>
                       </div>
-                      <div className="bg-amber-50 text-amber-800 p-2.5 rounded-xl border border-amber-100 flex flex-col justify-center items-center">
-                        <AlertTriangle className="w-4 h-4 text-amber-600 mb-1" />
-                        <span className="text-sm font-black">{importSummary.duplicates}</span>
-                        <span className="text-[8px] font-bold text-amber-600 uppercase tracking-widest mt-1">Duplicates</span>
-                      </div>
-                      <div className="bg-red-50 text-red-800 p-2.5 rounded-xl border border-red-100 flex flex-col justify-center items-center">
-                        <XCircle className="w-4 h-4 text-red-650 mb-1" />
-                        <span className="text-sm font-black">{importSummary.errors}</span>
-                        <span className="text-[8px] font-bold text-red-600 uppercase tracking-widest mt-1">Errors</span>
-                      </div>
-                    </div>
-
-                    {/* Downloadable Error Report button */}
-                    {errorReportCsv && (importSummary.errors > 0 || importSummary.duplicates > 0) && (
-                      <button
-                        onClick={downloadCsvReport}
-                        className="w-full py-2.5 bg-slate-900 hover:bg-slate-850 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download Import Report (CSV)</span>
-                      </button>
                     )}
-                  </div>
+                    {manualStudentSuccess && (
+                      <div className="p-3 bg-emerald-50 border border-emerald-250 text-emerald-800 text-xs rounded-xl flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                        <span>{manualStudentSuccess}</span>
+                      </div>
+                    )}
+
+                    {/* Form Input fields */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {/* Name */}
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                          Student Name <span className="text-red-500 font-bold">*</span>
+                        </label>
+                        <input
+                          id="manual_field_name"
+                          type="text"
+                          required
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
+                          placeholder="e.g. Rahul Kumar"
+                          value={mName}
+                          onChange={(e) => setMName(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Email */}
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                          Email Address <span className="text-red-500 font-bold">*</span>
+                        </label>
+                        <input
+                          id="manual_field_email"
+                          type="email"
+                          required
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
+                          placeholder="e.g. rahul@hospital.com"
+                          value={mEmail}
+                          onChange={(e) => setMEmail(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Hostel Selection */}
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                          Hostel Block <span className="text-red-500 font-bold">*</span>
+                        </label>
+                        <select
+                          id="manual_field_hostel"
+                          required
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
+                          value={mHostel}
+                          onChange={(e) => setMHostel(e.target.value)}
+                        >
+                          <option value="M">Hostel M</option>
+                          <option value="A">Hostel A</option>
+                          <option value="B">Hostel B</option>
+                          <option value="C">Hostel C</option>
+                        </select>
+                      </div>
+
+                      {/* Room Number */}
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                          Room Number <span className="text-red-500 font-bold">*</span>
+                        </label>
+                        <input
+                          id="manual_field_room"
+                          type="text"
+                          required
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
+                          placeholder="e.g. 104"
+                          value={mRoomNumber}
+                          onChange={(e) => setMRoomNumber(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Phone (Optional) */}
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                          Phone Number (Optional)
+                        </label>
+                        <input
+                          id="manual_field_phone"
+                          type="tel"
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
+                          placeholder="e.g. +91 94450 12345"
+                          value={mPhone}
+                          onChange={(e) => setMPhone(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Registration No (Optional) */}
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                          Reg No (Optional - Auto-gen if empty)
+                        </label>
+                        <input
+                          id="manual_field_reg"
+                          type="text"
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
+                          placeholder="e.g. 2026CSE045"
+                          value={mRegNo}
+                          onChange={(e) => setMRegNo(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Submit action */}
+                    <div className="flex justify-end pt-2">
+                      <button
+                        id="manual_student_submit_btn"
+                        type="submit"
+                        disabled={manualStudentLoading}
+                        className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-md disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        {manualStudentLoading ? (
+                          <>
+                            <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            <span>Adding student...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Users className="w-3.5 h-3.5" />
+                            <span>Add Student Profile</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
                 )}
               </div>
 
@@ -637,24 +861,24 @@ export const AdminDashboard: React.FC = () => {
                 )}
 
                 <form onSubmit={handleIssueSubmit} className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Student Selection */}
                     <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                        1. Assign Student (Enter Room No)
+                      <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                        1. Assign Student (Search Room or Select)
                       </label>
                       
                       {/* Room Search Option */}
                       <div className="mb-2 relative">
                         <input
                           type="text"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-600/15 font-mono"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/15 font-mono"
                           placeholder="Search Room (e.g. 104)..."
                           value={roomSearchQuery}
                           onChange={(e) => handleRoomSearch(e.target.value)}
                         />
                         {isSearchingRoom && (
-                          <span className="absolute right-3 top-2.5 w-3 h-3 border border-slate-200 border-t-blue-600 rounded-full animate-spin"></span>
+                          <span className="absolute right-3 top-3 w-3 h-3 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin"></span>
                         )}
                       </div>
 
@@ -686,7 +910,7 @@ export const AdminDashboard: React.FC = () => {
                           }
                         }}
                       >
-                        <option value="">-- Select Student --</option>
+                        <option value="">-- Choose Student Manually --</option>
                         {students.map((s) => (
                           <option key={s.id} value={s.id}>
                             {s.name} (Room {s.roomNumber})
@@ -696,41 +920,46 @@ export const AdminDashboard: React.FC = () => {
                     </div>
 
                     {/* Equipment Selection */}
-                    <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                        2. Sports Equipment
-                      </label>
-                      <select
-                        id="issue_equipment_select"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
-                        value={selectedEquipmentId}
-                        onChange={(e) => setSelectedEquipmentId(e.target.value)}
-                      >
-                        <option value="">-- Select Gear --</option>
-                        {equipmentList.map((e) => (
-                          <option key={e.id} value={e.id} disabled={e.availableQuantity <= 0}>
-                            {e.name} ({e.availableQuantity} / {e.totalQuantity} avl)
-                          </option>
-                        ))}
-                      </select>
+                    <div className="flex flex-col justify-between">
+                      <div>
+                        <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                          2. Sports Equipment
+                        </label>
+                        <select
+                          id="issue_equipment_select"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/15"
+                          value={selectedEquipmentId}
+                          onChange={(e) => setSelectedEquipmentId(e.target.value)}
+                        >
+                          <option value="">-- Select Gear / Sport Item --</option>
+                          {equipmentList.map((e) => (
+                            <option key={e.id} value={e.id} disabled={e.availableQuantity <= 0}>
+                              {e.name} ({e.availableQuantity} / {e.totalQuantity} available)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Spacing alignment helper for desktop layout */}
+                      <div className="hidden md:block h-3"></div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="w-1/3">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                        3. Issue Qty
+                  <div className="flex flex-col sm:flex-row sm:items-end gap-3.5 pt-1">
+                    <div className="w-full sm:w-1/3">
+                      <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                        3. Issue Quantity
                       </label>
                       <input
                         id="issue_quantity_input"
                         type="number"
                         min="1"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-850 text-slate-800 font-mono font-bold"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/15"
                         value={issueQuantity}
                         onChange={(e) => setIssueQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                       />
                     </div>
-                    <div className="w-2/3 pt-4">
+                    <div className="w-full sm:w-2/3">
                       <button
                         id="issue_submit_btn"
                         type="submit"

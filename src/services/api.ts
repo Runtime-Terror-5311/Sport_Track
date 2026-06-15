@@ -35,6 +35,20 @@ export const api = {
     return apiCall<User[]>(`/api/students${query}`);
   },
 
+  addStudent: (studentData: {
+    name: string;
+    email: string;
+    hostel: string;
+    roomNumber: string;
+    phone?: string;
+    regNo?: string;
+  }) => {
+    return apiCall<{ message: string; student: any }>("/api/students", {
+      method: "POST",
+      body: JSON.stringify(studentData),
+    });
+  },
+
   // Equipment Management
   getEquipment: () => {
     return apiCall<Equipment[]>("/api/equipment");
@@ -142,6 +156,22 @@ export const api = {
     return apiCall<any>("/api/issues/report/dispatch-purge", {
       method: "POST",
       body: JSON.stringify({ year, month, recipientEmail }),
+    });
+  },
+
+  // AI Sports Assistant
+  getAIChatHistory: () => {
+    return apiCall<any[]>("/api/ai/history");
+  },
+  sendAIChatMessage: (message: string) => {
+    return apiCall<{ answer: string; chat: any }>("/api/ai/chat", {
+      method: "POST",
+      body: JSON.stringify({ message }),
+    });
+  },
+  clearAIChatHistory: () => {
+    return apiCall<{ message: string }>("/api/ai/history", {
+      method: "DELETE",
     });
   },
 };

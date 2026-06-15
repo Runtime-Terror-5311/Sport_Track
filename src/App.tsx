@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LoginPage } from "./pages/LoginPage";
 import { StudentDashboard } from "./pages/StudentDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import { AIChatButton } from "./components/AIChatButton";
 
 function DashboardGateway() {
   const { isAuthenticated, isAdmin, loading } = useAuth();
@@ -32,6 +33,7 @@ export default function App() {
   return (
     <AuthProvider>
       <DashboardGateway />
+      <AIChatButton />
     </AuthProvider>
   );
 }
