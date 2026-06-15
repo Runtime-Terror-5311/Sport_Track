@@ -322,7 +322,7 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose }) => 
                   <div className="flex items-end space-x-1.5 max-w-[85%] group">
                     {msg.sender === "ai" && (
                       <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-xs shrink-0 select-none font-bold text-emerald-700 mb-0.5">
-                        Ai
+                        AI
                       </div>
                     )}
                     <div
