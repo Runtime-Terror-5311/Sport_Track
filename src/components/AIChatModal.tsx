@@ -362,7 +362,7 @@ export const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose }) => 
             {sending && (
               <div id="ai-chat-typing-indicator" className="flex items-end space-x-1.5">
                 <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-xs shrink-0 font-bold text-emerald-700">
-                  Ai
+                  AI
                 </div>
                 <div className="bg-white border border-slate-100 px-4 py-2.5 rounded-2xl rounded-bl-none shadow-sm flex items-center space-x-1.5">
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
